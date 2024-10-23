@@ -1,14 +1,11 @@
-import express, { Request, Response } from 'express';
-import { prisma } from './db';
+import express from "express";
+import { signup } from "./handlers/authHandler";
 
 const app = express();
 app.use(express.json());
 
-app.use('/api', async (req: Request, res: Response) => {
-  const users = await prisma.user.findMany();
-  res.json(users);
-})
+app.post("/api/signup", signup);
 
 app.listen(3000, () => {
-  console.log('Astrology API running on port 3000');
+  console.log("Astrology API running on port 3000");
 });
