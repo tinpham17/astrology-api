@@ -1,7 +1,7 @@
 import { RequestHandler } from "express";
 import { z } from "zod";
 import { prisma } from "../db";
-import jwt from 'jsonwebtoken';
+import jwt from "jsonwebtoken";
 import { ApiResponse } from "../types/api";
 
 const loginSchema = z.object({
@@ -46,7 +46,7 @@ export const login: RequestHandler = async (req, res) => {
   }
 
   const token = jwt.sign({ id: user.id }, "jwt_secret");
-  
+
   res.status(200).json({
     success: true,
     data: {
