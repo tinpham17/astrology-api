@@ -6,27 +6,43 @@ const signupSchema = z.object({
   email: z.string().email("Invalid email format"),
   password: z.string().min(6, "Password must be at least 6 characters long"),
   zodiac_sign: z.string(),
-})
+});
 
 export const signup: RequestHandler = async (req, res) => {
-  const validationResult = signupSchema.safeParse(req.body)
+  const validationResult = signupSchema.safeParse(req.body);
+
   if (!validationResult.success) {
     res.status(400).json({
-      message: 'Validation error',
+      message: "Validation error",
       errors: validationResult.error.errors,
     });
-    return
+    return;
   }
-  const { email, password, zodiac_sign } = validationResult.data
+
+  const { email, password, zodiac_sign } = validationResult.data;
+
+  const existingUser = await prisma.user.findFirst({
+    where: {
+      email,
+    },
+  });
+
+  if (existingUser) {
+    res.status(400).json({
+      message: "User already exists",
+    });
+    return;
+  }
 
   const user = await prisma.user.create({
     data: {
       email,
       password,
-      zodiac_sign
+      zodiac_sign,
     },
-  })
+  });
+
   res.status(200).json({
-    data: user
-  })
-}
+    data: user,
+  });
+};
