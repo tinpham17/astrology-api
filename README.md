@@ -21,6 +21,8 @@ npm run build
 npm start
 ```
 
-## Extensions
+## Dockerize
 
-- Prisma
+```
+docker-compose up --build
+```
