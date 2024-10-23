@@ -1,6 +1,8 @@
 import { RequestHandler } from "express";
 import { z } from "zod";
 import { prisma } from "../db";
+import { getZodiacSigns } from "../utils/horoscopeApi";
+import { ApiResponse } from "../types/api";
 
 const signupSchema = z.object({
   email: z.string().email("Invalid email format"),
@@ -13,9 +15,10 @@ export const signup: RequestHandler = async (req, res) => {
 
   if (!validationResult.success) {
     res.status(400).json({
+      success: false,
       message: "Validation error",
-      errors: validationResult.error.errors,
-    });
+      data: validationResult.error.errors,
+    } satisfies ApiResponse<z.ZodIssue[]>);
     return;
   }
 
@@ -29,8 +32,19 @@ export const signup: RequestHandler = async (req, res) => {
 
   if (existingUser) {
     res.status(400).json({
+      success: false,
       message: "User already exists",
-    });
+    } satisfies ApiResponse);
+    return;
+  }
+
+  const validZodiacSigns = await getZodiacSigns();
+
+  if (!validZodiacSigns.includes(zodiac_sign)) {
+    res.status(400).json({
+      success: false,
+      message: "Invalid zodiac sign",
+    } satisfies ApiResponse);
     return;
   }
 
@@ -43,6 +57,7 @@ export const signup: RequestHandler = async (req, res) => {
   });
 
   res.status(200).json({
+    success: true,
     data: user,
-  });
+  } satisfies ApiResponse<typeof user>);
 };
